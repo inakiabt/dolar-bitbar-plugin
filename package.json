@@ -9,7 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dolar-blue": "github:matiu/dolar-blue",
+    "dolar-blue": "github:inakiabt/dolar-blue",
+    "moment": "^2.22.1",
     "underscore": "^1.8.3"
   }
 }

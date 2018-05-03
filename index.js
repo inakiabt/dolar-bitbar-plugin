@@ -2,15 +2,14 @@
 
 var dolarblue = require('dolar-blue');
 var _ = require('underscore');
+var moment = require('moment');
 
 function getDate(date) {
-    return date;
-    // var d = new Date(date);
-    // return d.getDate() + '/' + (d.getMonth()+1) + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+    return moment(date).format('YYYY-MM-DD HH:mm');
 }
 
 function printSource(source) {
-    console.log('$' + source.value_buy.toFixed(2) + '/$' + source.value_sell.toFixed(2), getDate(source.date), source.source);
+    console.log('$' + source.value_buy.toFixed(2) + ' / $' + source.value_sell.toFixed(2), '-', getDate(source.date), source.source);
 }
 
 dolarblue({src: "Bluelytics"}, function (err, data) {
@@ -23,10 +22,15 @@ dolarblue({src: "Bluelytics"}, function (err, data) {
         return s.source === 'oficial' ? 'oficial' : 'resto';
     });
 
-    if (!sources.oficial) {
-        console.log('-/-');
-    } else {
-        printSource(_.first(sources.oficial));
-    }
-    _.each(sources.resto, printSource);
+    var list = ['oficial', 'blue', 'ambito_financiero', 'oficial_euro', 'blue_euro'];
+
+    _.each(list.map(function(item) {
+      return data[item];
+    }), printSource);
+
+    _.each(Object.keys(data).filter(function(item) {
+      return !list.includes(item);
+    }).map(function(item) {
+      return data[item];
+    }), printSource);
 });
