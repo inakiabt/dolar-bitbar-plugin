@@ -9,12 +9,18 @@ function getDate(date) {
 }
 
 function printSource(source) {
-    console.log('$' + source.value_buy.toFixed(2) + ' / $' + source.value_sell.toFixed(2), '-', getDate(source.date), source.source);
+    const middle = (source.value_sell + source.value_buy) / 2;
+    console.log('$' + source.value_buy.toFixed(2) + ' / $' + middle.toFixed(2) + ' / $' + source.value_sell.toFixed(2), '-', getDate(source.date), source.source);
 }
 
 dolarblue({src: "Bluelytics"}, function (err, data) {
     if (err) {
-        console.error("Error: ", err);
+        console.error("Error:", err);
+        return;
+    }
+
+    if (!data) {
+        console.error("Error: No internet?");
         return;
     }
 
