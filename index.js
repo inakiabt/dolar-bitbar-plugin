@@ -9,8 +9,7 @@ function getDate(date) {
 }
 
 function printSource(source) {
-    const middle = (source.value_sell + source.value_buy) / 2;
-    console.log('$' + source.value_buy.toFixed(2) + ' / $' + middle.toFixed(2) + ' / $' + source.value_sell.toFixed(2), '-', getDate(source.date), source.source);
+    console.log('$' + source.value_buy.toFixed(2) + ' / $' + source.value_avg.toFixed(2) + ' / $' + source.value_sell.toFixed(2), '-', getDate(source.date), source.source);
 }
 
 dolarblue({src: "Bluelytics"}, function (err, data) {
