@@ -1,112 +1,43 @@
-const axios = require('axios').default;
-const { utcToZonedTime } = require('date-fns-tz');
-const { parse, format } = require('date-fns');
+'use strict';
 
-const API = 'https://api-dolar-argentina.vercel.app/api';
+var dolarblue = require('dolar-blue');
+var _ = require('underscore');
+var moment = require('moment');
 
-const get = async (endpoint) => {
-  const response = await axios.get(`${API}/${endpoint}`, {
-    headers: {
-      'x-api-key': process.env.API_KEY,
-    },
-  });
-  return response.data;
-};
-
-const parseValue = (value) => {
-  if (value === 'No cotiza') {
-    // eslint-disable-next-line no-param-reassign
-    value = 90;
-  }
-  const newValue = parseFloat(value);
-  if (Number.isNaN(newValue)) {
-    return value;
-  }
-  return newValue;
-};
-
-// formats a value according to its type.
-const formatValue = (type, value) => {
-  switch (type) {
-    case 'moneda': {
-      const { compra, venta } = value;
-      const buy = parseValue(compra);
-      const sell = parseValue(venta);
-      const avg = (buy + sell) / 2;
-      return `$${buy.toFixed(2)} / $${avg.toFixed(2)} / $${sell.toFixed(2)}`;
-    }
-    case 'valor':
-      return parseValue(value.valor);
-    default:
-      return value;
-  }
-};
-const getValues = async (endpoints) => Promise.all(endpoints.map(({ endpoint }) => get(endpoint)));
-const processValues = (endpoints, values) => {
-  return endpoints.map((endpoint, index) => {
-    const { type, name } = endpoint;
-    const { fecha, ...value } = values[index];
-    const date = utcToZonedTime(parse(fecha, 'yyyy/MM/dd HH:mm:ss', new Date()), 'America/Argentina/Buenos_Aires');
-    return {
-      name,
-      date,
-      value: formatValue(type, value),
-    };
-  });
-};
-
-const endpoints = [
-  {
-    name: 'Oficial',
-    endpoint: 'dolaroficial',
-    type: 'moneda',
-  },
-  {
-    name: 'Blue',
-    endpoint: 'dolarblue',
-    type: 'moneda',
-  },
-  {
-    name: 'Liqui',
-    endpoint: 'contadoliqui',
-    type: 'moneda',
-  },
-  {
-    name: 'Bolsa',
-    endpoint: 'dolarbolsa',
-    type: 'moneda',
-  },
-  {
-    name: 'Mayorista',
-    endpoint: 'mayorista',
-    type: 'moneda',
-  },
-  {
-    name: 'Euro nacion',
-    endpoint: 'euro/nacion',
-    type: 'moneda',
-  },
-  {
-    name: 'BBVA',
-    endpoint: 'bbva',
-    type: 'moneda',
-  },
-  {
-    name: 'Riesgo pais',
-    endpoint: 'riesgopais',
-    type: 'valor',
-  },
-];
-function printSource(values) {
-  values.forEach((data) => {
-    console.log(data.value, '-', format(data.date, 'yyyy-MM-dd HH:mm:ss'), data.name);
-  });
+function getDate(date) {
+    return moment(date).format('YYYY-MM-DD HH:mm');
 }
 
-getValues(endpoints)
-  .then((values) => processValues(endpoints, values))
-  .then(printSource)
-  .catch((e) => {
-    console.log(e.message);
-    process.exit(1);
-  });
+// function printSource(source) {
+//     console.log('$' + source.value_buy.toFixed(2) + ' / $' + source.value_avg.toFixed(2) + ' / $' + source.value_sell.toFixed(2), '-', getDate(source.date), source.source);
+// }
+function printSource(source) {
+    console.log('$' + source.value_buy.toFixed(2) + ' / $' + source.value_avg.toFixed(2) + ' / $' + source.value_sell.toFixed(2), '-', getDate(source.date), source.source);
+}
+
+dolarblue({src: "Bluelytics"}, function (err, data) {
+    if (err) {
+        console.error("Error:", err);
+        return;
+    }
+
+    if (!data) {
+        console.error("Error: No internet?");
+        return;
+    }
+
+
+    var list = ['oficial', 'blue', 'ambito_financiero', 'oficial_euro', 'blue_euro'];
+
+    _.each(list.filter(function(item) {
+      return !!data[item];
+    }).map(function(item) {
+      return data[item];
+    }), printSource);
+
+    // _.each(Object.keys(data).filter(function(item) {
+    //   return !list.includes(item);
+    // }).map(function(item) {
+    //   return data[item];
+    // }), printSource);
+});
