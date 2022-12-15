@@ -2,14 +2,22 @@ const axios = require('axios').default;
 const { utcToZonedTime } = require('date-fns-tz');
 const { parse, format } = require('date-fns');
 
-const API = 'https://api-dolar-argentina.herokuapp.com/api';
+const API = 'https://api-dolar-argentina.vercel.app/api';
 
 const get = async (endpoint) => {
-  const response = await axios.get(`${API}/${endpoint}`);
+  const response = await axios.get(`${API}/${endpoint}`, {
+    headers: {
+      'x-api-key': process.env.API_KEY,
+    },
+  });
   return response.data;
 };
 
 const parseValue = (value) => {
+  if (value === 'No cotiza') {
+    // eslint-disable-next-line no-param-reassign
+    value = 90;
+  }
   const newValue = parseFloat(value);
   if (Number.isNaN(newValue)) {
     return value;
@@ -97,4 +105,8 @@ function printSource(values) {
 
 getValues(endpoints)
   .then((values) => processValues(endpoints, values))
-  .then(printSource);
+  .then(printSource)
+  .catch((e) => {
+    console.log(e.message);
+    process.exit(1);
+  });
