@@ -14,7 +14,7 @@ exit_with_error() {
 export NVM_DIR=$HOME/.nvm
 . /usr/local/opt/nvm/nvm.sh
 
-result=`$(nvm which default) $HOME/src/dolar-bitbar-plugin/index.js || exit_with_error`
+result=`API_KEY="${DOLAR_API_KEY}" $(nvm which default) $HOME/src/personal/dolar-bitbar-plugin/index.js || exit_with_error`
 
 value=`echo $result | awk '{print $1}' | head -1`
 
