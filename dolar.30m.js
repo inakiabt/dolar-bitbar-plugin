@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/Users/inakiabete/.nvm/versions/node/v18.14.2/bin/node
 
 "use strict";
 
@@ -14,17 +14,23 @@ function getDate(date) {
 //     console.log('$' + source.value_buy.toFixed(2) + ' / $' + source.value_avg.toFixed(2) + ' / $' + source.value_sell.toFixed(2), '-', getDate(source.date), source.source);
 // }
 function printSource(source) {
-  console.log(
+  var isOlderThan30Minutes = moment().diff(moment(source.date), "minutes") > 30;
+  var date = getDate(source.date);
+  var styledDate = date;
+  var line =
     "$" +
-      source.value_buy.toFixed(2) +
-      " / $" +
-      source.value_avg.toFixed(2) +
-      " / $" +
-      source.value_sell.toFixed(2),
-    "-",
-    getDate(source.date),
-    source.source
-  );
+    source.value_buy.toFixed(2) +
+    " / $" +
+    source.value_avg.toFixed(2) +
+    " / $" +
+    source.value_sell.toFixed(2) +
+    " - ";
+
+  if (isOlderThan30Minutes) {
+    styledDate += " | color=red font=Menlo-Bold";
+  }
+
+  console.log(line + styledDate + " " + source.source);
 }
 
 dolarblue({ src: "Bluelytics" }, function (err, data) {
