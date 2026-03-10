@@ -26,11 +26,13 @@ function printSource(source) {
     source.value_sell.toFixed(2) +
     " - ";
 
+  styledDate += " " + source.source;
+
   if (isOlderThan30Minutes) {
-    styledDate += " | color=red font=Menlo-Bold";
+    styledDate += " | color=red";
   }
 
-  console.log(line + styledDate + " " + source.source);
+  console.log(line + styledDate);
 }
 
 dolarblue({ src: "Bluelytics" }, function (err, data) {
